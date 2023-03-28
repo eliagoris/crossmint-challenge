@@ -1,10 +1,10 @@
 import fetch from "node-fetch"
 
-type MapGoalApiResponse = {
+type MapGoalApiResponseBody = {
   goal: Array<Array<string>>
 }
 
-type MapApiResponse = {
+type MapApiResponseBody = {
   map: {
     content: Array<Array<string>>
   }
@@ -18,21 +18,18 @@ const CANDIDATE_ID = "4af401b6-4a32-4f7a-a8fe-d67730166c4a"
  * compare them both, and make the necessary changes to the candidate map to have it validated
  */
 ;(async () => {
-  const mapGoalRequest = fetch(`${MAP_API_BASE_URL}${CANDIDATE_ID}/goal`)
-  const currentMapRequest = fetch(`${MAP_API_BASE_URL}${CANDIDATE_ID}`)
+  const mapGoalPromise = fetch(`${MAP_API_BASE_URL}${CANDIDATE_ID}/goal`)
+  const mapPromise = fetch(`${MAP_API_BASE_URL}${CANDIDATE_ID}`)
 
   /** Fetch all requests at once */
-  const [mapGoalResponse, currentMapResponse] = await Promise.all([
-    mapGoalRequest,
-    currentMapRequest,
-  ])
+  const [mapGoalRes, mapRes] = await Promise.all([mapGoalPromise, mapPromise])
 
   /** Transpile to JSON */
-  const [mapGoal, currentMap] = (await Promise.all([
-    mapGoalResponse.json(),
-    currentMapResponse.json(),
-  ])) as [MapGoalApiResponse, MapApiResponse]
+  const [mapGoalResBody, mapResBody] = (await Promise.all([
+    mapGoalRes.json(),
+    mapRes.json(),
+  ])) as [MapGoalApiResponseBody, MapApiResponseBody]
 
-  console.log(mapGoal.goal.length)
-  console.log(currentMap.map.content.length)
+  console.log(mapGoalResBody.goal.length)
+  console.log(mapResBody.map.content.length)
 })()
