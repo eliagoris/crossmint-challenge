@@ -30,6 +30,38 @@ const CANDIDATE_ID = "4af401b6-4a32-4f7a-a8fe-d67730166c4a"
     mapRes.json(),
   ])) as [MapGoalApiResponseBody, MapApiResponseBody]
 
-  console.log(mapGoalResBody.goal.length)
-  console.log(mapResBody.map.content.length)
+  /** (Start comparing both maps) */
+  const { goal: mapGoalRowsAndColumns } = mapGoalResBody
+  const {
+    map: { content: mapRowsAndColumns },
+  } = mapResBody
+
+  /**
+   * Map every row and its columns,
+   * compare the value with the candidate map and change the value if necessary
+   */
+  let valuesToChange = 0
+  const changedMap = mapRowsAndColumns.map((mapRowColumns, rowIndex) => {
+    const changedRow = mapRowColumns.map((mapValue, columnIndex) => {
+      const goalValue = mapGoalRowsAndColumns[rowIndex][columnIndex]
+
+      let valueToReturn = mapValue
+
+      /** Do not consider "SPACE", because there is no API to set this value */
+      if (goalValue !== "SPACE" && mapValue !== goalValue) {
+        valuesToChange++
+
+        /** Update the value from the goal map. */
+        valueToReturn = goalValue
+      }
+
+      return valueToReturn
+    })
+
+    return changedRow
+  })
+
+  console.log(changedMap)
+
+  console.log("valuesToChange", valuesToChange)
 })()
