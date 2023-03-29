@@ -1,4 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next"
+import fetchRetry from "fetch-retry"
+
+const fetchAPI = fetchRetry(fetch)
 
 const POLYANETS_API_BASE_URL = "https://challenge.crossmint.io/api/polyanets"
 
@@ -31,18 +34,24 @@ export default async function handler(
         candidateId: "4af401b6-4a32-4f7a-a8fe-d67730166c4a",
       })
 
-      return fetch(POLYANETS_API_BASE_URL, {
+      /**
+       * The map API only accepts 10 requests per 10 seconds, so we have to keep retrying.
+       */
+      return fetchAPI(POLYANETS_API_BASE_URL, {
         method: "POST",
         body,
         headers,
+        retries: 10,
+        retryDelay: 10000,
+        retryOn: [429],
       })
     })
 
-    const result = await Promise.all(promises)
+    console.time("Upgrading map")
+    await Promise.all(promises)
+    console.timeEnd("Upgrading map")
 
-    console.log(result)
-
-    res.status(200).json(result)
+    res.status(200).json({})
   } catch (e) {
     console.log(e)
 

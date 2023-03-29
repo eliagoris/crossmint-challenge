@@ -22,6 +22,7 @@ export default function Home() {
   const [valuesToChangeCount, setValuesToChangeCount] = useState<number | null>(
     null
   )
+  const [isUpgrading, setIsUpgrading] = useState(false)
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -62,13 +63,15 @@ export default function Home() {
     try {
       setFormMessage("Upgrading your Megaverse...")
 
+      setIsUpgrading(true)
       const res = await upgradeMap({ candidateMap, goalMap })
       console.log(res)
     } catch (e) {
       console.log(e)
       setFormMessage(e + "")
+      setIsUpgrading(false)
     } finally {
-      setIsFormLoading(false)
+      setIsUpgrading(false)
     }
   }
 
@@ -169,10 +172,13 @@ export default function Home() {
                     Click the button to upgrade:
                   </Text>
                   <Button
+                    disabled={isUpgrading}
                     onClick={handleUpgradeMegaverseButtonClick}
                     variant="special"
                   >
-                    <span>Upgrade my Megaverse</span>
+                    <span>
+                      {isUpgrading ? "Upgrading..." : "Upgrade my Megaverse"}
+                    </span>
                   </Button>
                 </Flex>
                 <Megaverse type="CANDIDATE" map={candidateMap} />
