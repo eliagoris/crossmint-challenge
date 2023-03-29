@@ -52,23 +52,23 @@ export const getMaps = async ({ candidateId }: { candidateId: string }) => {
 }
 
 /**
- * A function that will fetch the map goal and the current map of the candidate,
- * compare them both, and make the necessary changes to the candidate map to have it validated
+ * A function that will compare the two Megaverses,
+ * and return a valid map for the candidate
  */
-export const getUpdatedMap = async ({
-  candidateId,
+export const getUpdatedMap = ({
+  candidateMap,
+  goalMap,
 }: {
-  candidateId: string
+  candidateMap: string[][]
+  goalMap: string[][]
 }) => {
-  const { candidateMap, goalMap } = await getMaps({ candidateId })
   /** (Start comparing both maps) */
-
   /**
    * Map every row and its columns,
    * compare the value with the candidate map and change the value if necessary
    */
   let valuesToChange = 0
-  const changedMap = candidateMap.map((mapRowColumns, rowIndex) => {
+  const validMap = candidateMap.map((mapRowColumns, rowIndex) => {
     const changedRow = mapRowColumns.map((mapValue, columnIndex) => {
       const goalValue = goalMap[rowIndex][columnIndex]
 
@@ -88,7 +88,12 @@ export const getUpdatedMap = async ({
     return changedRow
   })
 
-  console.log(changedMap)
+  console.log(validMap)
 
   console.log("valuesToChange", valuesToChange)
+
+  return {
+    valuesToChange,
+    validMap,
+  }
 }

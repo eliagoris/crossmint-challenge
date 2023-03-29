@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react"
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs"
 import "react-tabs/style/react-tabs.css"
 
-import { getMaps } from "@/services/map"
+import { getMaps, getUpdatedMap } from "@/services/map"
 import { Megaverse } from "@/components/Megaverse"
 
 export default function Home() {
@@ -12,6 +12,7 @@ export default function Home() {
   const [formMessage, setFormMessage] = useState(" ")
   const [candidateMap, setCandidateMap] = useState<string[][] | null>(null)
   const [goalMap, setGoalMap] = useState<string[][] | null>(null)
+  const [valuesToChange, setValuesToChange] = useState<number | null>(null)
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -27,11 +28,17 @@ export default function Home() {
         candidateId: candidateId.toString(),
       })
 
+      const { validMap, valuesToChange } = getUpdatedMap({
+        candidateMap,
+        goalMap,
+      })
+
+      setValuesToChange(valuesToChange)
       setCandidateMap(candidateMap)
       setGoalMap(goalMap)
       console.log(candidateMap)
       setIsFormLoading(false)
-      setFormMessage("Success!")
+      setFormMessage("Megaverses loaded!")
     } catch (e) {
       console.log(e)
       setFormMessage(e + "")
@@ -69,8 +76,8 @@ export default function Home() {
               maxWidth: "420px",
             }}
           >
-            We&apos;ll fetch your map and you can make the necessary changes in
-            a single click 🎉
+            We&apos;ll fetch your Megaverse and you can make the necessary
+            changes in a single click 🎉
           </Text>
         </Flex>
 
@@ -100,22 +107,69 @@ export default function Home() {
           />
 
           <Button disabled={isFormLoading}>
-            {isFormLoading ? "Loading..." : "Load map"}
+            {isFormLoading ? "Loading..." : "Load Megaverses"}
           </Button>
           {formMessage}
         </form>
 
-        <Tabs>
-          <TabList>
-            <Tab>Your map</Tab>
-            <Tab>Goal map</Tab>
-          </TabList>
+        {candidateMap && goalMap ? (
+          <Tabs
+            sx={{
+              minWidth: "960px",
+            }}
+          >
+            <TabList>
+              <Tab>My Megaverse</Tab>
+              <Tab>Goal Megaverse</Tab>
+            </TabList>
 
-          <TabPanel>
-            {candidateMap ? <Megaverse map={candidateMap} /> : null}
-          </TabPanel>
-          <TabPanel>{goalMap ? <Megaverse map={goalMap} /> : null}</TabPanel>
-        </Tabs>
+            <TabPanel>
+              <>
+                <Flex
+                  sx={{
+                    alignItems: "center",
+                    marginBottom: "16px",
+                    justifyContent: "space-between",
+                    minHeight: "36px",
+                  }}
+                >
+                  <Text
+                    sx={{
+                      fontSize: "14px",
+                    }}
+                  >
+                    This is your megaverse. <br />
+                    It needs <b>{valuesToChange} changes</b> to be valid. Click
+                    the button to upgrade:
+                  </Text>
+                  <Button variant="special">
+                    <span>Upgrade my Megaverse</span>
+                  </Button>
+                </Flex>
+                <Megaverse map={candidateMap} />
+              </>
+            </TabPanel>
+            <TabPanel>
+              <Flex
+                sx={{
+                  alignItems: "center",
+                  marginBottom: "16px",
+                  justifyContent: "space-between",
+                  minHeight: "36px",
+                }}
+              >
+                <Text
+                  sx={{
+                    fontSize: "14px",
+                  }}
+                >
+                  This is what your Megaverse should look like 🤯😮
+                </Text>
+              </Flex>
+              <Megaverse map={goalMap} />
+            </TabPanel>
+          </Tabs>
+        ) : null}
       </main>
     </>
   )
