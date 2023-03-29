@@ -1,13 +1,20 @@
 import { Flex } from "theme-ui"
 import { Fragment } from "theme-ui/jsx-runtime"
 
+import {
+  CandidateMapContent,
+  CandidateMapValue,
+  parseCandidateMapValue,
+} from "@/services/map"
+
 type Props = {
   /** The map from the map API */
-  map: string[][]
+  map: string[][] | CandidateMapContent
+  type: "CANDIDATE" | "GOAL"
 }
 
 /** Renders a Megaverse */
-export function Megaverse({ map }: Props) {
+export function Megaverse({ map, type }: Props) {
   return (
     <Flex
       sx={{
@@ -22,11 +29,17 @@ export function Megaverse({ map }: Props) {
     >
       {map.map((row, index) => {
         return (
-          <Flex key={row[0] + index}>
+          <Flex key={index}>
             {row.map((value, index) => {
               let elementToReturn: React.ReactNode
 
-              switch (value) {
+              let parsed = value
+              if (type === "CANDIDATE") {
+                /** Parse the value to render it using the same code */
+                parsed = parseCandidateMapValue(value as CandidateMapValue)
+              }
+
+              switch (parsed) {
                 case "POLYANET":
                   elementToReturn = <span>🪐</span>
                   break
@@ -147,7 +160,7 @@ export function Megaverse({ map }: Props) {
                   break
               }
 
-              return <Fragment key={value + index}>{elementToReturn}</Fragment>
+              return <Fragment key={index}>{elementToReturn}</Fragment>
             })}
           </Flex>
         )

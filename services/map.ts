@@ -6,9 +6,11 @@ type MapGoalApiResponseBody = MapApiErrorResponseBody & {
   goal: Array<Array<string>>
 }
 
+export type CandidateMapContent = Array<Array<CandidateMapValue>>
+
 type MapApiResponseBody = MapApiErrorResponseBody & {
   map: {
-    content: Array<Array<string>>
+    content: CandidateMapContent
   }
 }
 
@@ -55,45 +57,84 @@ export const getMaps = async ({ candidateId }: { candidateId: string }) => {
  * A function that will compare the two Megaverses,
  * and return a valid map for the candidate
  */
-export const getUpdatedMap = ({
-  candidateMap,
-  goalMap,
-}: {
-  candidateMap: string[][]
-  goalMap: string[][]
-}) => {
-  /** (Start comparing both maps) */
-  /**
-   * Map every row and its columns,
-   * compare the value with the candidate map and change the value if necessary
-   */
-  let valuesToChange = 0
-  const validMap = candidateMap.map((mapRowColumns, rowIndex) => {
-    const changedRow = mapRowColumns.map((mapValue, columnIndex) => {
-      const goalValue = goalMap[rowIndex][columnIndex]
+// export const getUpdatedMap = ({
+//   candidateMap,
+//   goalMap,
+// }: {
+//   candidateMap: CandidateMapContent
+//   goalMap: string[][]
+// }) => {
+//   /** (Start comparing both maps) */
+//   /**
+//    * Map every row and its columns,
+//    * compare the value with the candidate map and change the value if necessary
+//    */
+//   let valuesToChange = 0
+//   const validMap = candidateMap.map((mapRowColumns, rowIndex) => {
+//     const changedRow = mapRowColumns.map((mapValue, columnIndex) => {
+//       const goalValue = goalMap[rowIndex][columnIndex]
 
-      let valueToReturn = mapValue
+//       let valueToReturn = mapValue
 
-      /** Do not consider "SPACE", because there is no API to set this value */
-      if (goalValue !== "SPACE" && mapValue !== goalValue) {
-        valuesToChange++
+//       // turn {type: number} into "POLYANET", etc.
+//       const parsedMapValue = parseMapValue(mapValue)
 
-        /** Update the value from the goal map. */
-        valueToReturn = goalValue
+//       /** Do not consider "SPACE", because there is no API to set this value */
+//       if (goalValue !== "SPACE" && parsedMapValue !== goalValue) {
+//         valuesToChange++
+
+//         /** Update the value from the goal map. */
+//         valueToReturn = goalValue
+//       }
+
+//       return valueToReturn
+//     })
+
+//     return changedRow
+//   })
+
+//   console.log(validMap)
+
+//   console.log("valuesToChange", valuesToChange)
+
+//   return {
+//     valuesToChange,
+//     validMap,
+//   }
+// }
+
+export type CandidateMapValue = { type: number; color?: string } | null
+
+/**
+ * Turn a map value from the candidate Megaverse into an equivalent value from the goal Megaverse
+ * So that they can be compared and rendered equally
+ */
+export const parseCandidateMapValue = (value: CandidateMapValue) => {
+  if (!value) return null
+
+  const { type } = value
+
+  switch (type) {
+    case 0:
+      return "POLYANET"
+
+    case 1:
+      const { color } = value
+      switch (color) {
+        case "blue":
+          return "BLUE_SOLOON"
+
+        case "red":
+          return "RED_SOLOON"
+
+        case "white":
+          return "WHITE_SOLOON"
+
+        case "purple":
+          return "PURPLE_SOLOON"
       }
 
-      return valueToReturn
-    })
-
-    return changedRow
-  })
-
-  console.log(validMap)
-
-  console.log("valuesToChange", valuesToChange)
-
-  return {
-    valuesToChange,
-    validMap,
+    default:
+      return "RIGHT_COMETH"
   }
 }

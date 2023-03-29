@@ -4,13 +4,15 @@ import { FormEvent, useState } from "react"
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs"
 import "react-tabs/style/react-tabs.css"
 
-import { getMaps, getUpdatedMap } from "@/services/map"
+import { CandidateMapContent, getMaps } from "@/services/map"
 import { Megaverse } from "@/components/Megaverse"
 
 export default function Home() {
   const [isFormLoading, setIsFormLoading] = useState(false)
   const [formMessage, setFormMessage] = useState(" ")
-  const [candidateMap, setCandidateMap] = useState<string[][] | null>(null)
+  const [candidateMap, setCandidateMap] = useState<CandidateMapContent | null>(
+    null
+  )
   const [goalMap, setGoalMap] = useState<string[][] | null>(null)
   const [valuesToChange, setValuesToChange] = useState<number | null>(null)
 
@@ -28,12 +30,12 @@ export default function Home() {
         candidateId: candidateId.toString(),
       })
 
-      const { validMap, valuesToChange } = getUpdatedMap({
-        candidateMap,
-        goalMap,
-      })
+      // const { validMap, valuesToChange } = getUpdatedMap({
+      //   candidateMap,
+      //   goalMap,
+      // })
 
-      setValuesToChange(valuesToChange)
+      setValuesToChange(122)
       setCandidateMap(candidateMap)
       setGoalMap(goalMap)
       console.log(candidateMap)
@@ -46,6 +48,7 @@ export default function Home() {
       setIsFormLoading(false)
     }
   }
+
   return (
     <>
       <Head>
@@ -138,7 +141,7 @@ export default function Home() {
                       fontSize: "14px",
                     }}
                   >
-                    This is your megaverse. <br />
+                    This is your Megaverse. <br />
                     It needs <b>{valuesToChange} changes</b> to be valid. Click
                     the button to upgrade:
                   </Text>
@@ -146,7 +149,7 @@ export default function Home() {
                     <span>Upgrade my Megaverse</span>
                   </Button>
                 </Flex>
-                <Megaverse map={candidateMap} />
+                <Megaverse type="CANDIDATE" map={candidateMap} />
               </>
             </TabPanel>
             <TabPanel>
@@ -166,7 +169,7 @@ export default function Home() {
                   This is what your Megaverse should look like 🤯😮
                 </Text>
               </Flex>
-              <Megaverse map={goalMap} />
+              <Megaverse type="GOAL" map={goalMap} />
             </TabPanel>
           </Tabs>
         ) : null}
