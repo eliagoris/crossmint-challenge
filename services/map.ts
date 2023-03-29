@@ -53,11 +53,17 @@ export const getMaps = async ({ candidateId }: { candidateId: string }) => {
   return { goalMap: goal, candidateMap: content }
 }
 
+export type ValuesToChange = {
+  row: number
+  column: number
+  goalValue: string
+}[]
+
 /**
  * A function that will compare the two Megaverses,
- * and return a valid map for the candidate
+ * and return the necessary changes for the candidate Megaverse
  */
-export const getUpdatedMap = ({
+export const getValuesToChange = ({
   candidateMap,
   goalMap,
 }: {
@@ -69,39 +75,39 @@ export const getUpdatedMap = ({
    * compare the value with the goal map and return a valid value
    */
   let valuesToChangeCount = 0
-  const validMap = candidateMap.map((mapRowColumns, rowIndex) => {
-    const changedRow = mapRowColumns.map((mapValue, columnIndex) => {
+  const valuesToChange: ValuesToChange = []
+
+  candidateMap.forEach((mapRowColumns, rowIndex) => {
+    mapRowColumns.forEach((mapValue, columnIndex) => {
       const goalValue = goalMap[rowIndex][columnIndex]
 
       const parsedMapValue = parseCandidateMapValue(mapValue)
 
-      let valueToReturn = parsedMapValue
-
-      /** Do not consider "SPACE", because there is no API to set this value */
       if (parsedMapValue !== goalValue) {
         valuesToChangeCount++
 
-        /** Update the value from the goal map. */
-        valueToReturn = goalValue
+        valuesToChange.push({
+          row: rowIndex,
+          column: columnIndex,
+          goalValue,
+        })
       }
-
-      return valueToReturn
     })
-
-    return changedRow
   })
-
-  console.log(validMap)
 
   console.log("valuesToChangeCount", valuesToChangeCount)
 
   return {
     valuesToChangeCount,
-    validMap,
+    valuesToChange,
   }
 }
 
-export type CandidateMapValue = { type: number; color?: string } | null
+export type CandidateMapValue = {
+  type: number
+  color?: string
+  direction?: string
+} | null
 
 /**
  * Turn a map value from the candidate Megaverse into an equivalent value from the goal Megaverse
@@ -132,8 +138,25 @@ export const parseCandidateMapValue = (value: CandidateMapValue) => {
           return "PURPLE_SOLOON"
       }
 
+    case 2:
+      const { direction } = value
+
+      switch (direction) {
+        case "up":
+          return "UP_COMETH"
+
+        case "down":
+          return "DOWN_COMETH"
+
+        case "left":
+          return "LEFT_COMETH"
+
+        case "right":
+          return "RIGHT_COMETH"
+      }
+
     default:
-      return "RIGHT_COMETH"
+      return "SPACE"
   }
 }
 
@@ -149,23 +172,13 @@ export const upgradeMap = async ({
   candidateMap: CandidateMapContent
   goalMap: string[][]
 }) => {
-  const { validMap } = getUpdatedMap({ candidateMap, goalMap })
+  const { valuesToChange } = getValuesToChange({ candidateMap, goalMap })
 
-  let polyanetsToCreate: { rowIndex: number; columnIndex: number }[] = []
-  validMap.map((row, rowIndex) =>
-    row.map((value, columnIndex) => {
-      if (value === "POLYANET") {
-        polyanetsToCreate.push({ rowIndex, columnIndex })
-      }
-    })
-  )
-
-  /** Create all Polyanets */
   const headers = new Headers()
   headers.append("Content-Type", "application/json")
 
   const body = JSON.stringify({
-    polyanetsToCreate,
+    valuesToChange,
   })
 
   await fetch(UPGRADE_API_BASE_URL, {

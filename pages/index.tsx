@@ -7,7 +7,7 @@ import "react-tabs/style/react-tabs.css"
 import {
   CandidateMapContent,
   getMaps,
-  getUpdatedMap,
+  getValuesToChange,
   upgradeMap,
 } from "@/services/map"
 import { Megaverse } from "@/components/Megaverse"
@@ -38,7 +38,7 @@ export default function Home() {
         candidateId: candidateId.toString(),
       })
 
-      const { valuesToChangeCount } = getUpdatedMap({
+      const { valuesToChangeCount } = getValuesToChange({
         candidateMap,
         goalMap,
       })
@@ -167,7 +167,7 @@ export default function Home() {
                       fontSize: "14px",
                     }}
                   >
-                    This is your Megaverse. <br />
+                    This is your Megaverse right now. <br />
                     It needs <b>{valuesToChangeCount} changes</b> to be valid.
                     Click the button to upgrade:
                   </Text>
