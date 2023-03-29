@@ -57,6 +57,7 @@ export type ValuesToChange = {
   row: number
   column: number
   goalValue: string
+  currentValue: string
 }[]
 
 /**
@@ -90,6 +91,7 @@ export const getValuesToChange = ({
           row: rowIndex,
           column: columnIndex,
           goalValue,
+          currentValue: parsedMapValue,
         })
       }
     })

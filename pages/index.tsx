@@ -156,7 +156,9 @@ export default function Home() {
         {candidateMap && goalMap ? (
           <Tabs
             sx={{
-              minWidth: "960px",
+              "@media (min-width: 1024px)": {
+                minWidth: "960px",
+              },
             }}
           >
             <TabList>
