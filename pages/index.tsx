@@ -4,7 +4,12 @@ import { FormEvent, useState } from "react"
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs"
 import "react-tabs/style/react-tabs.css"
 
-import { CandidateMapContent, getMaps } from "@/services/map"
+import {
+  CandidateMapContent,
+  getMaps,
+  getUpdatedMap,
+  upgradeMap,
+} from "@/services/map"
 import { Megaverse } from "@/components/Megaverse"
 
 export default function Home() {
@@ -14,7 +19,9 @@ export default function Home() {
     null
   )
   const [goalMap, setGoalMap] = useState<string[][] | null>(null)
-  const [valuesToChange, setValuesToChange] = useState<number | null>(null)
+  const [valuesToChangeCount, setValuesToChangeCount] = useState<number | null>(
+    null
+  )
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -30,17 +37,33 @@ export default function Home() {
         candidateId: candidateId.toString(),
       })
 
-      // const { validMap, valuesToChange } = getUpdatedMap({
-      //   candidateMap,
-      //   goalMap,
-      // })
+      const { valuesToChangeCount } = getUpdatedMap({
+        candidateMap,
+        goalMap,
+      })
 
-      setValuesToChange(122)
+      setValuesToChangeCount(valuesToChangeCount)
       setCandidateMap(candidateMap)
       setGoalMap(goalMap)
-      console.log(candidateMap)
+
       setIsFormLoading(false)
       setFormMessage("Megaverses loaded!")
+    } catch (e) {
+      console.log(e)
+      setFormMessage(e + "")
+    } finally {
+      setIsFormLoading(false)
+    }
+  }
+
+  const handleUpgradeMegaverseButtonClick = async () => {
+    if (!candidateMap || !goalMap) return null
+
+    try {
+      setFormMessage("Upgrading your Megaverse...")
+
+      const res = await upgradeMap({ candidateMap, goalMap })
+      console.log(res)
     } catch (e) {
       console.log(e)
       setFormMessage(e + "")
@@ -142,10 +165,13 @@ export default function Home() {
                     }}
                   >
                     This is your Megaverse. <br />
-                    It needs <b>{valuesToChange} changes</b> to be valid. Click
-                    the button to upgrade:
+                    It needs <b>{valuesToChangeCount} changes</b> to be valid.
+                    Click the button to upgrade:
                   </Text>
-                  <Button variant="special">
+                  <Button
+                    onClick={handleUpgradeMegaverseButtonClick}
+                    variant="special"
+                  >
                     <span>Upgrade my Megaverse</span>
                   </Button>
                 </Flex>

@@ -57,51 +57,49 @@ export const getMaps = async ({ candidateId }: { candidateId: string }) => {
  * A function that will compare the two Megaverses,
  * and return a valid map for the candidate
  */
-// export const getUpdatedMap = ({
-//   candidateMap,
-//   goalMap,
-// }: {
-//   candidateMap: CandidateMapContent
-//   goalMap: string[][]
-// }) => {
-//   /** (Start comparing both maps) */
-//   /**
-//    * Map every row and its columns,
-//    * compare the value with the candidate map and change the value if necessary
-//    */
-//   let valuesToChange = 0
-//   const validMap = candidateMap.map((mapRowColumns, rowIndex) => {
-//     const changedRow = mapRowColumns.map((mapValue, columnIndex) => {
-//       const goalValue = goalMap[rowIndex][columnIndex]
+export const getUpdatedMap = ({
+  candidateMap,
+  goalMap,
+}: {
+  candidateMap: CandidateMapContent
+  goalMap: string[][]
+}) => {
+  /**
+   * Map every row and its columns,
+   * compare the value with the goal map and return a valid value
+   */
+  let valuesToChangeCount = 0
+  const validMap = candidateMap.map((mapRowColumns, rowIndex) => {
+    const changedRow = mapRowColumns.map((mapValue, columnIndex) => {
+      const goalValue = goalMap[rowIndex][columnIndex]
 
-//       let valueToReturn = mapValue
+      const parsedMapValue = parseCandidateMapValue(mapValue)
 
-//       // turn {type: number} into "POLYANET", etc.
-//       const parsedMapValue = parseMapValue(mapValue)
+      let valueToReturn = parsedMapValue
 
-//       /** Do not consider "SPACE", because there is no API to set this value */
-//       if (goalValue !== "SPACE" && parsedMapValue !== goalValue) {
-//         valuesToChange++
+      /** Do not consider "SPACE", because there is no API to set this value */
+      if (parsedMapValue !== goalValue) {
+        valuesToChangeCount++
 
-//         /** Update the value from the goal map. */
-//         valueToReturn = goalValue
-//       }
+        /** Update the value from the goal map. */
+        valueToReturn = goalValue
+      }
 
-//       return valueToReturn
-//     })
+      return valueToReturn
+    })
 
-//     return changedRow
-//   })
+    return changedRow
+  })
 
-//   console.log(validMap)
+  console.log(validMap)
 
-//   console.log("valuesToChange", valuesToChange)
+  console.log("valuesToChangeCount", valuesToChangeCount)
 
-//   return {
-//     valuesToChange,
-//     validMap,
-//   }
-// }
+  return {
+    valuesToChangeCount,
+    validMap,
+  }
+}
 
 export type CandidateMapValue = { type: number; color?: string } | null
 
@@ -110,7 +108,7 @@ export type CandidateMapValue = { type: number; color?: string } | null
  * So that they can be compared and rendered equally
  */
 export const parseCandidateMapValue = (value: CandidateMapValue) => {
-  if (!value) return null
+  if (!value) return "SPACE"
 
   const { type } = value
 
@@ -137,4 +135,42 @@ export const parseCandidateMapValue = (value: CandidateMapValue) => {
     default:
       return "RIGHT_COMETH"
   }
+}
+
+const UPGRADE_API_BASE_URL = "/api/upgrade"
+
+/**
+ * Compares Megaverses and makes necessary changes
+ */
+export const upgradeMap = async ({
+  candidateMap,
+  goalMap,
+}: {
+  candidateMap: CandidateMapContent
+  goalMap: string[][]
+}) => {
+  const { validMap } = getUpdatedMap({ candidateMap, goalMap })
+
+  let polyanetsToCreate: { rowIndex: number; columnIndex: number }[] = []
+  validMap.map((row, rowIndex) =>
+    row.map((value, columnIndex) => {
+      if (value === "POLYANET") {
+        polyanetsToCreate.push({ rowIndex, columnIndex })
+      }
+    })
+  )
+
+  /** Create all Polyanets */
+  const headers = new Headers()
+  headers.append("Content-Type", "application/json")
+
+  const body = JSON.stringify({
+    polyanetsToCreate,
+  })
+
+  await fetch(UPGRADE_API_BASE_URL, {
+    method: "POST",
+    body,
+    headers,
+  })
 }
