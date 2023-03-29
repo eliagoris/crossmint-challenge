@@ -30,7 +30,9 @@ export default function Home() {
           }}
         >
           <Heading>Validate your cool Megaverse!</Heading>
-          <Text>You'll only need your candidate ID to play with your map</Text>
+          <Text>
+            You&apos;ll only need your candidate ID to play with your map
+          </Text>
         </Flex>
 
         <Flex
