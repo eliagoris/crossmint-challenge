@@ -19,8 +19,10 @@ export default async function handler(
 ) {
   const {
     valuesToChange,
+    candidateId,
   }: {
     valuesToChange: ValuesToChange
+    candidateId: string
   } = req.body
 
   try {
@@ -37,7 +39,7 @@ export default async function handler(
       } = {
         row: row,
         column: column,
-        candidateId: "4af401b6-4a32-4f7a-a8fe-d67730166c4a",
+        candidateId,
       }
 
       let apiUrl = POLYANETS_API_URL

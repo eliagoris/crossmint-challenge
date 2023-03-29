@@ -18,6 +18,7 @@ export default function Home() {
   const [candidateMap, setCandidateMap] = useState<CandidateMapContent | null>(
     null
   )
+  const [candidateId, setCandidateId] = useState<string | null>(null)
   const [goalMap, setGoalMap] = useState<string[][] | null>(null)
   const [valuesToChangeCount, setValuesToChangeCount] = useState<number | null>(
     null
@@ -33,6 +34,9 @@ export default function Home() {
 
     try {
       if (!candidateId) throw new Error("Empty id")
+
+      setFormMessage("Loading Megaverses...")
+      setCandidateId(candidateId.toString())
 
       const { candidateMap, goalMap } = await getMaps({
         candidateId: candidateId.toString(),
@@ -58,14 +62,18 @@ export default function Home() {
   }
 
   const handleUpgradeMegaverseButtonClick = async () => {
-    if (!candidateMap || !goalMap) return null
+    if (!candidateMap || !goalMap || !candidateId) {
+      setFormMessage("Something went wrong. Couldn't load maps.")
+      return null
+    }
 
     try {
       setFormMessage("Upgrading your Megaverse...")
 
       setIsUpgrading(true)
-      const res = await upgradeMap({ candidateMap, goalMap })
-      console.log(res)
+      const res = await upgradeMap({ candidateMap, goalMap, candidateId })
+
+      setFormMessage("Megaverse upgraded!")
     } catch (e) {
       console.log(e)
       setFormMessage(e + "")
@@ -114,6 +122,8 @@ export default function Home() {
           sx={{
             display: "flex",
             flexDirection: "column",
+            minWidth: "320px",
+            alignItems: "center",
             gap: "8px",
           }}
           onSubmit={handleFormSubmit}
@@ -121,6 +131,7 @@ export default function Home() {
           <label
             htmlFor="candidate_id"
             sx={{
+              alignSelf: "flex-start",
               fontSize: "12px",
             }}
           >
@@ -138,8 +149,9 @@ export default function Home() {
           <Button disabled={isFormLoading}>
             {isFormLoading ? "Loading..." : "Load Megaverses"}
           </Button>
-          {formMessage}
         </form>
+
+        <Text>{formMessage}</Text>
 
         {candidateMap && goalMap ? (
           <Tabs

@@ -168,9 +168,11 @@ const UPGRADE_API_BASE_URL = "/api/upgrade"
 export const upgradeMap = async ({
   candidateMap,
   goalMap,
+  candidateId,
 }: {
   candidateMap: CandidateMapContent
   goalMap: string[][]
+  candidateId: string
 }) => {
   const { valuesToChange } = getValuesToChange({ candidateMap, goalMap })
 
@@ -179,6 +181,7 @@ export const upgradeMap = async ({
 
   const body = JSON.stringify({
     valuesToChange,
+    candidateId,
   })
 
   await fetch(UPGRADE_API_BASE_URL, {
