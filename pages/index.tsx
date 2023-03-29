@@ -1,12 +1,17 @@
 import Head from "next/head"
 import { Button, Flex, Heading, Input, Text } from "theme-ui"
 import { FormEvent, useState } from "react"
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs"
+import "react-tabs/style/react-tabs.css"
+
 import { getMaps } from "@/services/map"
+import { Megaverse } from "@/components/Megaverse"
 
 export default function Home() {
   const [isFormLoading, setIsFormLoading] = useState(false)
   const [formMessage, setFormMessage] = useState(" ")
-  const [candidateMap, setCandidateMap] = useState<string[][]>()
+  const [candidateMap, setCandidateMap] = useState<string[][] | null>(null)
+  const [goalMap, setGoalMap] = useState<string[][] | null>(null)
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -23,6 +28,7 @@ export default function Home() {
       })
 
       setCandidateMap(candidateMap)
+      setGoalMap(goalMap)
       console.log(candidateMap)
       setIsFormLoading(false)
       setFormMessage("Success!")
@@ -99,132 +105,17 @@ export default function Home() {
           {formMessage}
         </form>
 
-        <Flex
-          sx={{
-            flexDirection: "column",
-            letterSpacing: "1em",
-            span: {
-              width: "32px",
-              height: "19px",
-            },
-          }}
-        >
-          {candidateMap &&
-            candidateMap.map((row) => {
-              return (
-                <Flex sx={{}}>
-                  {row.map((value) => {
-                    if (!value || value === "SPACE") return <span>🌌</span>
+        <Tabs>
+          <TabList>
+            <Tab>Your map</Tab>
+            <Tab>Goal map</Tab>
+          </TabList>
 
-                    if (value === "POLYANET") return <span>🪐</span>
-
-                    if (value === "RIGHT_COMETH")
-                      return (
-                        <span
-                          sx={{
-                            position: "relative",
-                            rotate: "140deg",
-                            top: ".25rem",
-                            right: ".75rem",
-                          }}
-                        >
-                          ☄️
-                        </span>
-                      )
-
-                    if (value === "UP_COMETH")
-                      return (
-                        <span
-                          sx={{
-                            position: "relative",
-                            rotate: "48deg",
-                            top: ".5rem",
-                            right: ".25rem",
-                          }}
-                        >
-                          ☄️
-                        </span>
-                      )
-
-                    if (value === "LEFT_COMETH")
-                      return (
-                        <span
-                          sx={{
-                            position: "relative",
-                            rotate: "330deg",
-                            bottom: ".25rem",
-                            left: ".25rem",
-                          }}
-                        >
-                          ☄️
-                        </span>
-                      )
-
-                    if (value === "DOWN_COMETH")
-                      return (
-                        <span
-                          sx={{
-                            position: "relative",
-                            rotate: "230deg",
-                            right: ".75rem",
-                            bottom: ".5rem",
-                          }}
-                        >
-                          ☄️
-                        </span>
-                      )
-
-                    if (value === "BLUE_SOLOON")
-                      return (
-                        <span
-                          sx={{
-                            filter:
-                              "grayscale(100%) brightness(30%) sepia(100%) hue-rotate(-180deg) saturate(700%) contrast(0.8)",
-                          }}
-                        >
-                          🌕
-                        </span>
-                      )
-
-                    if (value === "RED_SOLOON")
-                      return (
-                        <span
-                          sx={{
-                            filter:
-                              "grayscale(100%) brightness(40%) sepia(100%) hue-rotate(-50deg) saturate(600%) contrast(0.8)",
-                          }}
-                        >
-                          🌕
-                        </span>
-                      )
-
-                    if (value === "WHITE_SOLOON")
-                      return (
-                        <span
-                          sx={{
-                            filter: "grayscale(100%)",
-                          }}
-                        >
-                          🌕
-                        </span>
-                      )
-
-                    if (value === "PURPLE_SOLOON")
-                      return (
-                        <span
-                          sx={{
-                            filter:
-                              "grayscale(100%) brightness(70%) sepia(50%) hue-rotate(-100deg) saturate(500%) contrast(1)",
-                          }}
-                        >
-                          🌕
-                        </span>
-                      )
-                  })}
-                </Flex>
-              )
-            })}
-        </Flex>
+          <TabPanel>
+            {candidateMap ? <Megaverse map={candidateMap} /> : null}
+          </TabPanel>
+          <TabPanel>{goalMap ? <Megaverse map={goalMap} /> : null}</TabPanel>
+        </Tabs>
       </main>
     </>
   )
