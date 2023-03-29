@@ -1,4 +1,5 @@
 import { Flex } from "theme-ui"
+import { Fragment } from "theme-ui/jsx-runtime"
 
 type Props = {
   /** The map from the map API */
@@ -19,16 +20,19 @@ export function Megaverse({ map }: Props) {
         },
       }}
     >
-      {map.map((row) => {
+      {map.map((row, index) => {
         return (
-          <Flex key={row[0]} sx={{}}>
-            {row.map((value) => {
+          <Flex key={row[0] + index}>
+            {row.map((value, index) => {
+              let elementToReturn: React.ReactNode
+
               switch (value) {
                 case "POLYANET":
-                  return <span>🪐</span>
+                  elementToReturn = <span>🪐</span>
+                  break
 
                 case "RIGHT_COMETH":
-                  return (
+                  elementToReturn = (
                     <span
                       sx={{
                         position: "relative",
@@ -40,9 +44,10 @@ export function Megaverse({ map }: Props) {
                       ☄️
                     </span>
                   )
+                  break
 
                 case "UP_COMETH":
-                  return (
+                  elementToReturn = (
                     <span
                       sx={{
                         position: "relative",
@@ -54,9 +59,10 @@ export function Megaverse({ map }: Props) {
                       ☄️
                     </span>
                   )
+                  break
 
                 case "LEFT_COMETH":
-                  return (
+                  elementToReturn = (
                     <span
                       sx={{
                         position: "relative",
@@ -68,9 +74,10 @@ export function Megaverse({ map }: Props) {
                       ☄️
                     </span>
                   )
+                  break
 
                 case "DOWN_COMETH":
-                  return (
+                  elementToReturn = (
                     <span
                       sx={{
                         position: "relative",
@@ -82,9 +89,10 @@ export function Megaverse({ map }: Props) {
                       ☄️
                     </span>
                   )
+                  break
 
                 case "BLUE_SOLOON":
-                  return (
+                  elementToReturn = (
                     <span
                       sx={{
                         filter:
@@ -94,9 +102,10 @@ export function Megaverse({ map }: Props) {
                       🌕
                     </span>
                   )
+                  break
 
                 case "RED_SOLOON":
-                  return (
+                  elementToReturn = (
                     <span
                       sx={{
                         filter:
@@ -106,9 +115,10 @@ export function Megaverse({ map }: Props) {
                       🌕
                     </span>
                   )
+                  break
 
                 case "WHITE_SOLOON":
-                  return (
+                  elementToReturn = (
                     <span
                       sx={{
                         filter: "grayscale(100%)",
@@ -117,9 +127,10 @@ export function Megaverse({ map }: Props) {
                       🌕
                     </span>
                   )
+                  break
 
                 case "PURPLE_SOLOON":
-                  return (
+                  elementToReturn = (
                     <span
                       sx={{
                         filter:
@@ -129,10 +140,14 @@ export function Megaverse({ map }: Props) {
                       🌕
                     </span>
                   )
+                  break
 
                 default:
-                  return <span>🌌</span>
+                  elementToReturn = <span>🌌</span>
+                  break
               }
+
+              return <Fragment key={value + index}>{elementToReturn}</Fragment>
             })}
           </Flex>
         )
