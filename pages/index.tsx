@@ -1,10 +1,22 @@
 import Head from "next/head"
-import { Inter } from "next/font/google"
 import { Button, Flex, Heading, Input, Text } from "theme-ui"
-
-const inter = Inter({ subsets: ["latin"] })
+import { FormEvent, useState } from "react"
 
 export default function Home() {
+  const [isFormLoading, setIsFormLoading] = useState(false)
+  const [formMessage, setFormMessage] = useState(" ")
+
+  const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    setIsFormLoading(true)
+
+    const candidateId = new FormData(e.currentTarget).get("candidate_id")
+
+    console.log(candidateId)
+
+    setIsFormLoading(false)
+  }
   return (
     <>
       <Head>
@@ -29,28 +41,45 @@ export default function Home() {
             gap: "8px",
           }}
         >
-          <Heading>Validate your cool Megaverse!</Heading>
-          <Text>
-            You&apos;ll only need your candidate ID to play with your map
+          <Heading>Have your cool Megaverse validated!</Heading>
+          <Text
+            sx={{
+              maxWidth: "420px",
+            }}
+          >
+            We&apos;ll fetch your map and you can make the necessary changes in
+            a single click 🎉
           </Text>
         </Flex>
 
-        <Flex
-          as="form"
+        <form
           sx={{
+            display: "flex",
             flexDirection: "column",
             gap: "8px",
           }}
+          onSubmit={handleFormSubmit}
         >
-          <label>
-            <Input
-              placeholder="candidate id"
-              defaultValue="4af401b6-4a32-4f7a-a8fe-d67730166c4a"
-            />
+          <label
+            htmlFor="candidate_id"
+            sx={{
+              fontSize: "12px",
+            }}
+          >
+            Candidate ID
           </label>
+          <Input
+            id="candidate_id"
+            name="candidate_id"
+            placeholder="Enter your candidate ID"
+            title="Candidate ID"
+            defaultValue="4af401b6-4a32-4f7a-a8fe-d67730166c4a"
+            required
+          />
 
           <Button>Load map</Button>
-        </Flex>
+          {isFormLoading ? "Loading..." : formMessage}
+        </form>
       </main>
     </>
   )
