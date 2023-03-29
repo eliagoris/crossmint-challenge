@@ -21,7 +21,7 @@ export function Megaverse({ map }: Props) {
     >
       {map.map((row) => {
         return (
-          <Flex sx={{}}>
+          <Flex key={row[0]} sx={{}}>
             {row.map((value) => {
               switch (value) {
                 case "POLYANET":
