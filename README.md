@@ -1,6 +1,20 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# crossmint-challenge
 
-## Getting Started
+Web app to solve the Crossmint coding challenge.
+
+The app will ask for a Candidate ID, and the user can upgrade their Megaverse in a single click.
+
+_There is also a bonus functionality to "reset" their Megaverse to its empty state._
+
+See it by yourself: https://crossmint-challenge.vercel.app/ =)
+
+![image](https://user-images.githubusercontent.com/21317816/228860099-48e405e8-09ba-4db1-aacb-74dd5ad1bda5.png)
+
+
+
+## Develop locally
+
+### Getting Started
 
 First, run the development server:
 
@@ -13,14 +27,6 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
 ## Learn More
 
