@@ -6,7 +6,10 @@ The app will ask for a Candidate ID, and the user can upgrade their Megaverse in
 
 _There is also a bonus functionality to "reset" their Megaverse to its empty state._
 
-See it by yourself: https://challenge.crossmint.io/ =)
+See it by yourself: https://crossmint-challenge.vercel.app/ =)
+
+![image](https://user-images.githubusercontent.com/21317816/228860099-48e405e8-09ba-4db1-aacb-74dd5ad1bda5.png)
+
 
 
 ## Develop locally
