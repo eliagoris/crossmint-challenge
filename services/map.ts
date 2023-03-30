@@ -42,6 +42,10 @@ export const getMaps = async ({ candidateId }: { candidateId: string }) => {
       errorMessage += mapResBody?.message
     }
 
+    if (mapGoalResBody?.message) {
+      errorMessage += mapGoalResBody?.message
+    }
+
     throw new Error(errorMessage)
   }
 
