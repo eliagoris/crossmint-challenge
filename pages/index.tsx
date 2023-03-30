@@ -8,6 +8,8 @@ import {
   CandidateMapContent,
   getMaps,
   getValuesToChange,
+  getValuesToChangeByReset,
+  resetMap,
   upgradeMap,
 } from "@/services/map"
 import { Megaverse } from "@/components/Megaverse"
@@ -24,6 +26,7 @@ export default function Home() {
     null
   )
   const [isUpgrading, setIsUpgrading] = useState(false)
+  const [isResetting, setIsResetting] = useState(false)
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -68,10 +71,10 @@ export default function Home() {
     }
 
     try {
-      setFormMessage("Upgrading your Megaverse...")
+      setFormMessage(`Changing ${valuesToChangeCount} in your Megaverse...`)
 
       setIsUpgrading(true)
-      const res = await upgradeMap({ candidateMap, goalMap, candidateId })
+      await upgradeMap({ candidateMap, goalMap, candidateId })
 
       setFormMessage("Megaverse upgraded!")
     } catch (e) {
@@ -80,6 +83,31 @@ export default function Home() {
       setIsUpgrading(false)
     } finally {
       setIsUpgrading(false)
+    }
+  }
+
+  const handleResetMegaverseButtonClick = async () => {
+    if (!candidateMap || !goalMap || !candidateId) {
+      setFormMessage("Something went wrong. Couldn't load maps.")
+      return null
+    }
+
+    try {
+      const itemsToReset = getValuesToChangeByReset({ candidateMap })
+      setFormMessage(
+        `Resetting ${itemsToReset.length} items from your Megaverse... This may take a while.`
+      )
+
+      setIsResetting(true)
+      await resetMap({ candidateMap, candidateId })
+
+      setFormMessage("Megaverse resetted!")
+    } catch (e) {
+      console.log(e)
+      setFormMessage(e + "")
+      setIsResetting(false)
+    } finally {
+      setIsResetting(false)
     }
   }
 
@@ -178,22 +206,51 @@ export default function Home() {
                 >
                   <Text
                     sx={{
-                      fontSize: "14px",
+                      fontSize: "12px",
                     }}
                   >
-                    This is your Megaverse right now. <br />
-                    It needs <b>{valuesToChangeCount} changes</b> to be valid.
-                    Click the button to upgrade:
+                    <Text
+                      sx={{
+                        fontSize: "14px",
+                      }}
+                    >
+                      This is your Megaverse right now.
+                    </Text>{" "}
+                    <br />
+                    {valuesToChangeCount !== null ? (
+                      valuesToChangeCount > 0 ? (
+                        <>
+                          It needs <b>{valuesToChangeCount} changes</b> to be
+                          valid. Click the button to upgrade:
+                        </>
+                      ) : (
+                        "Your Megaverse is completely valid. Congratulations! 🎉"
+                      )
+                    ) : null}
                   </Text>
-                  <Button
-                    disabled={isUpgrading}
-                    onClick={handleUpgradeMegaverseButtonClick}
-                    variant="special"
+                  <Flex
+                    sx={{
+                      gap: "16px",
+                    }}
                   >
-                    <span>
-                      {isUpgrading ? "Upgrading..." : "Upgrade my Megaverse"}
-                    </span>
-                  </Button>
+                    <Button
+                      disabled={isResetting}
+                      onClick={handleResetMegaverseButtonClick}
+                    >
+                      <span>
+                        {isResetting ? "Resetting..." : "Reset my Megaverse"}
+                      </span>
+                    </Button>
+                    <Button
+                      disabled={isUpgrading || valuesToChangeCount === 0}
+                      onClick={handleUpgradeMegaverseButtonClick}
+                      variant="special"
+                    >
+                      <span>
+                        {isUpgrading ? "Upgrading..." : "Upgrade my Megaverse"}
+                      </span>
+                    </Button>
+                  </Flex>
                 </Flex>
                 <Megaverse type="CANDIDATE" map={candidateMap} />
               </>

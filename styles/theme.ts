@@ -67,6 +67,7 @@ export const theme: Theme = {
       ":disabled": {
         opacity: 0.7,
         cursor: "progress",
+        pointerEvents: "none",
       },
     },
   },

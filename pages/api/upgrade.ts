@@ -125,7 +125,7 @@ export default async function handler(
           method,
           body: JSON.stringify(body),
           headers,
-          retries: 10,
+          retries: 20,
           retryDelay: 10000,
           retryOn: [429],
         })

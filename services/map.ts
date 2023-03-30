@@ -192,3 +192,56 @@ export const upgradeMap = async ({
     headers,
   })
 }
+
+export const getValuesToChangeByReset = ({
+  candidateMap,
+}: {
+  candidateMap: CandidateMapContent
+}) => {
+  const valuesToChange: ValuesToChange = []
+
+  candidateMap.forEach((mapRowColumns, rowIndex) => {
+    mapRowColumns.forEach((mapValue, columnIndex) => {
+      const goalValue = "SPACE"
+      const parsedMapValue = parseCandidateMapValue(mapValue)
+
+      if (parsedMapValue !== goalValue) {
+        valuesToChange.push({
+          row: rowIndex,
+          column: columnIndex,
+          goalValue,
+          currentValue: parsedMapValue,
+        })
+      }
+    })
+  })
+
+  return valuesToChange
+}
+
+/**
+ * Resets a Megaverse
+ */
+export const resetMap = async ({
+  candidateMap,
+  candidateId,
+}: {
+  candidateMap: CandidateMapContent
+  candidateId: string
+}) => {
+  const valuesToChange = getValuesToChangeByReset({ candidateMap })
+
+  const headers = new Headers()
+  headers.append("Content-Type", "application/json")
+
+  const body = JSON.stringify({
+    valuesToChange,
+    candidateId,
+  })
+
+  await fetch(UPGRADE_API_BASE_URL, {
+    method: "POST",
+    body,
+    headers,
+  })
+}
