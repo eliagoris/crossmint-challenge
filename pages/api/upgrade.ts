@@ -9,6 +9,7 @@ const POLYANETS_API_URL = "https://challenge.crossmint.io/api/polyanets"
 const SOLOONS_API_URL = "https://challenge.crossmint.io/api/soloons"
 const COMETHS_API_URL = "https://challenge.crossmint.io/api/comeths"
 
+/** Maps goal Megaverse values with their necessary params and url. */
 const REQUEST_PARAMS_BY_MAP_VALUE: {
   [key: string]: {
     url: string
@@ -91,49 +92,60 @@ export default async function handler(
     const headers = new Headers()
     headers.append("Content-Type", "application/json")
 
-    const promises = valuesToChange.map(
-      ({ column, currentValue, goalValue, row }) => {
-        /** Find the API URL and additional body arguments from the goal map value.  */
-        let { body: additionalBody, url } =
-          REQUEST_PARAMS_BY_MAP_VALUE[goalValue]
-
-        const body: {
-          row: number
-          column: number
-          candidateId: string
-          color?: string
-          direction?: string
-        } = {
-          row: row,
-          column: column,
-          candidateId,
-          ...additionalBody,
-        }
-
-        let method = "POST"
-
-        /** The "SPACE" url is determined by the current value, because we will DELETE the item. */
-        if (goalValue === "SPACE") {
-          method = "DELETE"
-          url = REQUEST_PARAMS_BY_MAP_VALUE[currentValue].url
-        }
-
-        /**
-         * The map API only accepts 10 requests per 10 seconds, so we have to keep retrying.
-         */
-        return fetchAPI(url, {
-          method,
-          body: JSON.stringify(body),
-          headers,
-          retries: 20,
-          retryDelay: 10000,
-          retryOn: [429],
-        })
-      }
-    )
-
     console.time("Upgrading map")
-    await Promise.all(promises)
+
+    /** Map all changes, and send one request at a time to guarantee it goes through  */
+    for (let index = 0; index < valuesToChange.length; index++) {
+      const { column, currentValue, goalValue, row } = valuesToChange[index]
+
+      /** Find the API URL and additional body arguments from the goal map value.  */
+      let { body: additionalBody, url } = REQUEST_PARAMS_BY_MAP_VALUE[goalValue]
+
+      const body: {
+        row: number
+        column: number
+        candidateId: string
+        color?: string
+        direction?: string
+      } = {
+        row: row,
+        column: column,
+        candidateId,
+        ...additionalBody,
+      }
+
+      let method = "POST"
+
+      /** The "SPACE" url is determined by the current value, because we will DELETE the current item. */
+      if (goalValue === "SPACE") {
+        method = "DELETE"
+        url = REQUEST_PARAMS_BY_MAP_VALUE[currentValue].url
+      }
+
+      console.log(`Request ${index + 1} of ${valuesToChange.length}`)
+      /**
+       * The map API only accepts 10 requests per 10 seconds, and it has a backoff, so we have to keep retrying.
+       */
+      await fetchAPI(url, {
+        method,
+        body: JSON.stringify(body),
+        headers,
+        retries: 10,
+        retryDelay: function (attempt) {
+          return Math.pow(2, attempt) * 1000 // 1000, 2000, 4000
+        },
+        retryOn: function (attempt, error, response) {
+          // retry on any network error, or 4xx or 5xx status codes
+          if (error !== null || (response?.status && response?.status >= 400)) {
+            console.log(`Retrying, attempt number ${attempt + 1}`)
+            return true
+          }
+
+          return false
+        },
+      })
+    }
+
     console.timeEnd("Upgrading map")
 
     res.status(200).json({})

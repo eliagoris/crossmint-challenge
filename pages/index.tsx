@@ -71,7 +71,9 @@ export default function Home() {
     }
 
     try {
-      setFormMessage(`Changing ${valuesToChangeCount} in your Megaverse...`)
+      setFormMessage(
+        `Changing ${valuesToChangeCount} items in your Megaverse... This may take a while.`
+      )
 
       setIsUpgrading(true)
       await upgradeMap({ candidateMap, goalMap, candidateId })
@@ -141,8 +143,8 @@ export default function Home() {
               maxWidth: "420px",
             }}
           >
-            We&apos;ll fetch your Megaverse and you can make the necessary
-            changes in a single click 🎉
+            We&apos;ll fetch your Megaverse and you can make some changes to it
+            in a single click 💪
           </Text>
         </Flex>
 
