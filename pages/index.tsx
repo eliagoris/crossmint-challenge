@@ -1,115 +1,56 @@
 import Head from "next/head"
 import { Button, Flex, Heading, Input, Text } from "theme-ui"
-import { FormEvent, useState } from "react"
+import { FormEvent } from "react"
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs"
 import "react-tabs/style/react-tabs.css"
 
-import {
-  CandidateMapContent,
-  getMaps,
-  getValuesToChange,
-  getValuesToChangeByReset,
-  resetMap,
-  upgradeMap,
-} from "@/services/map"
 import { Megaverse } from "@/components/Megaverse"
+import useMegaverses from "@/hooks/useMegaverses"
 
 export default function Home() {
-  const [isFormLoading, setIsFormLoading] = useState(false)
-  const [formMessage, setFormMessage] = useState(" ")
-  const [candidateMap, setCandidateMap] = useState<CandidateMapContent | null>(
-    null
-  )
-  const [candidateId, setCandidateId] = useState<string | null>(null)
-  const [goalMap, setGoalMap] = useState<string[][] | null>(null)
-  const [valuesToChangeCount, setValuesToChangeCount] = useState<number | null>(
-    null
-  )
-  const [isUpgrading, setIsUpgrading] = useState(false)
-  const [isResetting, setIsResetting] = useState(false)
+  const {
+    candidateMap,
+    feedbackMessage,
+    goalMap,
+    isLoadingMegaverses,
+    isResetting,
+    isUpgrading,
+    valuesToChangeCount,
+    resetMegaverse,
+    setCandidateId,
+    fetchMegaverses,
+    upgradeMegaverse,
+  } = useMegaverses()
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
-    setIsFormLoading(true)
 
     const candidateId = new FormData(e.currentTarget).get("candidate_id")
 
     try {
       if (!candidateId) throw new Error("Empty id")
 
-      setFormMessage("Loading Megaverses...")
       setCandidateId(candidateId.toString())
 
-      const { candidateMap, goalMap } = await getMaps({
-        candidateId: candidateId.toString(),
-      })
-
-      const { valuesToChangeCount } = getValuesToChange({
-        candidateMap,
-        goalMap,
-      })
-
-      setValuesToChangeCount(valuesToChangeCount)
-      setCandidateMap(candidateMap)
-      setGoalMap(goalMap)
-
-      setIsFormLoading(false)
-      setFormMessage("Megaverses loaded!")
+      await fetchMegaverses({ candidateId: candidateId.toString() })
     } catch (e) {
       console.log(e)
-      setFormMessage(e + "")
-    } finally {
-      setIsFormLoading(false)
     }
   }
 
   const handleUpgradeMegaverseButtonClick = async () => {
-    if (!candidateMap || !goalMap || !candidateId) {
-      setFormMessage("Something went wrong. Couldn't load maps.")
-      return null
-    }
-
     try {
-      setFormMessage(
-        `Changing ${valuesToChangeCount} items in your Megaverse... This may take a while.`
-      )
-
-      setIsUpgrading(true)
-      await upgradeMap({ candidateMap, goalMap, candidateId })
-
-      setFormMessage("Megaverse upgraded!")
+      await upgradeMegaverse()
     } catch (e) {
       console.log(e)
-      setFormMessage(e + "")
-      setIsUpgrading(false)
-    } finally {
-      setIsUpgrading(false)
     }
   }
 
   const handleResetMegaverseButtonClick = async () => {
-    if (!candidateMap || !goalMap || !candidateId) {
-      setFormMessage("Something went wrong. Couldn't load maps.")
-      return null
-    }
-
     try {
-      const itemsToReset = getValuesToChangeByReset({ candidateMap })
-      setFormMessage(
-        `Resetting ${itemsToReset.length} items from your Megaverse... This may take a while.`
-      )
-
-      setIsResetting(true)
-      await resetMap({ candidateMap, candidateId })
-
-      setFormMessage("Megaverse resetted!")
+      await resetMegaverse()
     } catch (e) {
       console.log(e)
-      setFormMessage(e + "")
-      setIsResetting(false)
-    } finally {
-      setIsResetting(false)
     }
   }
 
@@ -176,12 +117,12 @@ export default function Home() {
             required
           />
 
-          <Button disabled={isFormLoading}>
-            {isFormLoading ? "Loading..." : "Load Megaverses"}
+          <Button disabled={isLoadingMegaverses}>
+            {isLoadingMegaverses ? "Loading..." : "Load Megaverses"}
           </Button>
         </form>
 
-        <Text>{formMessage}</Text>
+        <Text>{feedbackMessage}&nbsp;</Text>
 
         {candidateMap && goalMap ? (
           <Tabs
@@ -217,7 +158,7 @@ export default function Home() {
                       }}
                     >
                       This is your Megaverse right now.
-                    </Text>{" "}
+                    </Text>
                     <br />
                     {valuesToChangeCount !== null ? (
                       valuesToChangeCount > 0 ? (
