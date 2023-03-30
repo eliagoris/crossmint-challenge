@@ -4,7 +4,7 @@ import {
   CandidateMapContent,
   getMaps,
   getValuesToChange,
-  getValuesToChangeByReset,
+  getValuesToChangeToReset,
   resetMap,
   upgradeMap,
 } from "@/services/map"
@@ -93,7 +93,7 @@ export default function useMegaverses() {
     }
 
     try {
-      const itemsToReset = getValuesToChangeByReset({ candidateMap })
+      const itemsToReset = getValuesToChangeToReset({ candidateMap })
       setFeedbackMessage(
         `Resetting ${itemsToReset.length} items from your Megaverse... This may take a while.`
       )

@@ -193,7 +193,7 @@ export const upgradeMap = async ({
   })
 }
 
-export const getValuesToChangeByReset = ({
+export const getValuesToChangeToReset = ({
   candidateMap,
 }: {
   candidateMap: CandidateMapContent
@@ -229,7 +229,7 @@ export const resetMap = async ({
   candidateMap: CandidateMapContent
   candidateId: string
 }) => {
-  const valuesToChange = getValuesToChangeByReset({ candidateMap })
+  const valuesToChange = getValuesToChangeToReset({ candidateMap })
 
   const headers = new Headers()
   headers.append("Content-Type", "application/json")
